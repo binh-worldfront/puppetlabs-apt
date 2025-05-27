@@ -51,13 +51,22 @@ define apt::keyring (
 
   case $ensure {
     'present': {
-      file { $file:
-        ensure  => 'file',
-        mode    => $mode,
-        owner   => 'root',
-        group   => 'root',
-        source  => $source,
-        content => $content,
+      if !$content {
+        exec { "Setup ${file}":
+          command => "curl -fsSL ${source} | sudo gpg -o ${file} --dearmor",
+          onlyif  => "test ! -f ${file}",
+        }
+        file { $file:
+          mode    => $mode,
+        }
+      } else {
+        exec { "Setup ${file}":
+          command => "echo ${content} | sudo gpg -o ${file} --dearmor",
+          onlyif  => "test ! -f ${file}",
+        }
+        file { $file:
+          mode    => $mode,
+        }
       }
     }
     'absent': {
