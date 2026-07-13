@@ -53,7 +53,7 @@ define apt::keyring (
     'present': {
       if !$content {
         exec { "Setup ${file}":
-          command => "curl -fsSL ${source} | sudo gpg -o ${file} --dearmor",
+          command => "curl -fsSL \"${source}\" | sudo gpg --dearmor | sudo tee ${file}",
           onlyif  => "test ! -f ${file}",
         }
         file { $file:
@@ -61,7 +61,7 @@ define apt::keyring (
         }
       } else {
         exec { "Setup ${file}":
-          command => "echo ${content} | sudo gpg -o ${file} --dearmor",
+          command => "echo ${content} | sudo gpg --dearmor | sudo tee ${file}",
           onlyif  => "test ! -f ${file}",
         }
         file { $file:
